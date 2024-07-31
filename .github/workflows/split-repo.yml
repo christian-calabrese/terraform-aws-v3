@@ -25,7 +25,7 @@ jobs:
           done
 
           unique_list="$(echo "$folders_list" | jq -c unique )"
-          echo "::set-output name=FOLDERS_LIST::$unique_list"
+          echo "::set-output name=modules::$unique_list"
       
       - name: Split and push changes
         env:
