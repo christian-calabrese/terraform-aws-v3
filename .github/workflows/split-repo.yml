@@ -15,10 +15,17 @@ jobs:
       - name: Get modified modules
         id: get-modules
         run: |
-          # Your logic to get modified modules and save them to a file or environment variable
-          # This example assumes you output a JSON list of modules
-          modified_modules=$(git diff --name-only HEAD^ HEAD | grep 'modules/' | sed 's/modules\///' | cut -d '/' -f1 | sort | uniq)
-          echo "::set-output name=modules::${modified_modules}"
+          files="$(git diff-tree --no-commit-id --name-only -r ${{ github.sha }})"
+          folders_list="[]"
+
+          for file in $files
+          do  
+            folder="$(echo $(dirname "${file}") | sed 's!/*\([^/]*\).*!\1!g')"
+            folders_list="$(echo "$folders_list" | jq ". += [\"$folder\"]")"
+          done
+
+          unique_list="$(echo "$folders_list" | jq -c unique )"
+          echo "::set-output name=FOLDERS_LIST::$unique_list"
       
       - name: Split and push changes
         env:
