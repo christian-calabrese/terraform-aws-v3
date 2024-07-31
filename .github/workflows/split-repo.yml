@@ -11,7 +11,23 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+        with:
+            fetch-depth: 2 # Ensure we have enough history for the diff
 
+      - name: Install Git Scalar
+        run: |
+          # Download the latest Git Scalar release
+          curl -LO "https://github.com/microsoft/git-scalar/releases/download/v1.0.0/git-scalar-linux-x86_64-1.0.0.tar.gz"
+          
+          # Extract the tarball
+          tar -xzf git-scalar-linux-x86_64-1.0.0.tar.gz
+
+          # Move the binary to a directory in PATH
+          sudo mv git-scalar /usr/local/bin/
+
+          # Verify installation
+          git scalar --version
+          
       - name: Get modified modules
         id: get-modules
         run: |
