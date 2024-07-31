@@ -4,7 +4,6 @@ resource "aws_s3_bucket" "this" {
   #checkov:skip=CKV_AWS_144: "This is a demo bucket"
   #checkov:skip=CKV_AWS_145: "This is a demo bucket"
   #checkov:skip=CKV_AWS_21: "This is a demo bucket"
-  #checkov:skip=CKV2_AWS_6: "This is a demo bucket"
   bucket = var.bucket_name
 }
 
