@@ -14,20 +14,6 @@ jobs:
         with:
             fetch-depth: 2 # Ensure we have enough history for the diff
 
-      - name: Install Git Scalar
-        run: |
-          # Download the latest Git Scalar release
-          curl -LO "https://github.com/microsoft/git-scalar/releases/download/v1.0.0/git-scalar-linux-x86_64-1.0.0.tar.gz"
-          
-          # Extract the tarball
-          tar -xzf git-scalar-linux-x86_64-1.0.0.tar.gz
-
-          # Move the binary to a directory in PATH
-          sudo mv git-scalar /usr/local/bin/
-
-          # Verify installation
-          git scalar --version
-          
       - name: Get modified modules
         id: get-modules
         run: |
@@ -59,26 +45,5 @@ jobs:
             # Define the repository URL and directory for each module
             REPO_URL="https://github.com/christian-calabrese/terraform-aws-$module.git"
             MODULE_PATH="modules/$module"
-
-            # Setup Git Scalar
-            git scalar init --repository "$REPO_URL"
-
-            # Create a new directory for the module
-            mkdir -p "$module-repo"
-            cd "$module-repo"
-
-            # Clone the single-repo
-            git clone "$REPO_URL" .
-
-            # Add the changes from the module
-            cp -r "../$MODULE_PATH/" .
-
-            # Commit and push the changes
-            git add .
-            git commit -m "Update module $module"
-            git push origin main
-
-            # Clean up
-            cd ..
-            rm -rf "$module-repo"
+            git subtree push --prefix=$MODULE_PATH $REPO_URL main
           done
