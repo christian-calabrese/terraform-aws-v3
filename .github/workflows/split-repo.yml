@@ -18,16 +18,18 @@ jobs:
         id: get-modules
         run: |
           files=$(git diff-tree --no-commit-id --name-only -r ${{ github.sha }})
-          folders_list="[]"
+          folders_list=()
 
           for file in $files; do
             if [[ $file == modules/* ]]; then
               folder=$(echo "$file" | sed -E 's|^modules/([^/]+)/.*|\1|')
-              folders_list=$(echo "$folders_list" | jq ". += [\"$folder\"]")
+              if [[ ! " ${folders_list[@]} " =~ " ${folder} " ]]; then
+                folders_list+=("$folder")
+              fi
             fi
           done
 
-          unique_list=$(echo "$folders_list" | jq -c 'unique')
+          unique_list=$(printf '%s\n' "${folders_list[@]}" | jq -R . | jq -s .)
           echo "unique_list=$unique_list" >> $GITHUB_ENV
           echo "::set-output name=modules::$unique_list"
       
@@ -41,6 +43,7 @@ jobs:
           fi
 
           for module in $modules; do
+            module=$(echo "$module" | sed 's/^"\(.*\)"$/\1/')
             echo "Processing module: $module"
             REPO_URL="https://github.com/christian-calabrese/terraform-aws-$module.git"
             MODULE_PATH="modules/$module"
