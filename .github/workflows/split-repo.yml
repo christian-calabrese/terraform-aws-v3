@@ -34,7 +34,7 @@ jobs:
       - name: Process each module
         run: |
           modified_modules="${{ steps.get-modules.outputs.modules }}"
-          modules=$(echo "$modified_modules" | jq -r '.[]')
+          modules=$(echo "$modified_modules" | jq -c '.[]')
           if [ -z "$modules" ]; then
             echo "No modules to process."
             exit 0
