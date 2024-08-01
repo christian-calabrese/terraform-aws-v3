@@ -17,23 +17,29 @@ jobs:
       - name: Get modified modules
         id: get-modules
         run: |
-          files="$(git diff-tree --no-commit-id --name-only -r ${{ github.sha }})"
+          files=$(git diff-tree --no-commit-id --name-only -r ${{ github.sha }})
           folders_list="[]"
 
           for file in $files
-          do  
-            folder="$(echo $(dirname "${file}") | sed 's!/*\([^/]*\).*!\1!g')"
-            folders_list="$(echo "$folders_list" | jq ". += [\"$folder\"]")"
+          do
+            # Check if the file is within the "modules/" directory
+            if [[ $file == modules/* ]]; then
+              # Extract the first-level directory name under "modules/"
+              folder=$(echo "$file" | sed -E 's|^modules/([^/]+)/.*|\1|')
+              folders_list=$(echo "$folders_list" | jq ". += [\"$folder\"]")
+            fi
           done
 
-          unique_list="$(echo "$folders_list" | jq -c unique )"
+          # Remove duplicate folder names
+          unique_list=$(echo "$folders_list" | jq -c 'unique')
+          echo "unique_list=$unique_list" >> $GITHUB_ENV
           echo "::set-output name=modules::$unique_list"
       
       - name: Split and push changes
         env:
           GIT_SCALAR_VERSION: "1.0"  # Specify your Git Scalar version if needed
         run: |
-          modified_modules="${{ steps.get-modules.outputs.modules }}"
+          modified_modules=$(echo ${{ steps.get-modules.outputs.modules }} | jq -r '.[]')
           if [ -z "$modified_modules" ]; then
             echo "No modules to process."
             exit 0
