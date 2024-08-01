@@ -34,7 +34,7 @@ jobs:
       - name: Process each module
         run: |
           # Load the modified modules from the environment
-          modified_modules="${MODIFIED_MODULES}"
+          modified_modules="${{ steps.get-modules.outputs.modules }}"
 
           # Extract each module from the JSON array
           modules=$(echo "$modified_modules" | jq -c '.[]')
