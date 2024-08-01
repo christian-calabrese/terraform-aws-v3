@@ -12,14 +12,18 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
-            fetch-depth: 2 # Ensure we have enough history for the diff
+          fetch-depth: 2 # Ensure we have enough history for the diff
 
       - name: Get modified modules
         id: get-modules
         run: |
+          # Get the list of modified files
           files=$(git diff-tree --no-commit-id --name-only -r ${{ github.sha }})
+
+          # Initialize an array to store module names
           folders_list=()
 
+          # Process each file to determine the modified modules
           for file in $files; do
             if [[ $file == modules/* ]]; then
               folder=$(echo "$file" | sed -E 's|^modules/([^/]+)/.*|\1|')
@@ -29,20 +33,29 @@ jobs:
             fi
           done
 
+          # Convert the list of folders to JSON format
           unique_list=$(printf '%s\n' "${folders_list[@]}" | jq -R . | jq -s .)
-          echo "unique_list=$unique_list" >> $GITHUB_ENV
-          echo "::set-output name=modules::$unique_list"
-      
+
+          # Save the unique list of modules to an environment file
+          echo "MODIFIED_MODULES=$unique_list" >> $GITHUB_ENV
+
       - name: Process each module
         run: |
-          modified_modules="${{ steps.get-modules.outputs.modules }}"
+          # Load the modified modules from the environment
+          modified_modules="${MODIFIED_MODULES}"
+
+          # Extract each module from the JSON array
           modules=$(echo "$modified_modules" | jq -c '.[]')
+
+          # Check if there are modules to process
           if [ -z "$modules" ]; then
             echo "No modules to process."
             exit 0
           fi
 
+          # Process each module
           for module in $modules; do
+            # Remove quotes around module names
             module=$(echo "$module" | sed 's/^"\(.*\)"$/\1/')
             echo "Processing module: $module"
             REPO_URL="https://github.com/christian-calabrese/terraform-aws-$module.git"
