@@ -42,6 +42,9 @@ runs:
         cp .git/config .git/config-original
         git config --global url."https://api:${{ inputs.github_pat }}@github.com/".insteadOf "https://github.com/"
         git config --unset http."https://github.com/".extraheader
+    
+    - name: Checkout repository
+      uses: actions/checkout@v4
 
     - name: Setup git for subtree
       shell: bash
