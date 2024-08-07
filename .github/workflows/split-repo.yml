@@ -10,7 +10,7 @@ permissions:
   id-token: write
 
 jobs:
-  split_and_push:
+  get-modified-modules:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -34,33 +34,19 @@ jobs:
           unique_list=$(echo "$folders_list" | jq -c 'unique' | sed -e 's/\[//g' -e 's/\]//g' -e 's/\,/ /g')
           echo "unique_list=$unique_list" >> $GITHUB_ENV
           echo "::set-output name=modules::$unique_list"
-      
-      - name: Setup git config
-        run: |
-          git config --global user.name "GitHub Actions"
-          git config --global user.email "<>"
+    outputs:
+      modules: ${{ steps.get-modules.outputs.modules }}
 
-      - name: Process each module
-        env:
-          SPLIT_MODULES_GH_TOKEN: ${{ github.token }}
-        run: |
-          # Load the modified modules from the environment
-          modified_modules="${{ steps.get-modules.outputs.modules }}"
-
-          # Check if there are modules to process
-          if [ -z "$modified_modules" ]; then
-            echo "No modules to process."
-            exit 0
-          fi
-
-          # Process each module
-          for module in $modified_modules; do
-            # Remove quotes around module names
-            module=$(echo "$module" | sed 's/^"\(.*\)"$/\1/')
-            echo "Processing module: $module"
-            REPO_URL="https://x-access-token:${SPLIT_MODULES_GH_TOKEN}@github.com/christian-calabrese/terraform-aws-$module.git"
-            echo "Using repository URL: $REPO_URL"
-            MODULE_PATH="modules/$module"
-            git subtree push --prefix=$MODULE_PATH $REPO_URL main
-          done
-        shell: /usr/bin/bash -e {0}
+  push-modified-modules:
+    runs-on: ubuntu-latest
+    needs: get-modified-modules
+    strategy:
+      matrix:
+        module: ${{needs.get-modified-modules.outputs.modules}}
+    steps:
+      - name: Run subtree action
+        id: subtree-action
+        uses: ./.github/actions/subtree
+        with:
+          repo: https://github.com/christian-calabrese/terraform-aws-${{ matrix.module }}.git"
+          prefix: "modules/${{ matrix.module }}"

@@ -1,0 +1,69 @@
+name: "Subtree action"
+description: "Execute the git subtree action in a protected environment"
+
+inputs:
+  git_name:
+    description: "Git User Name"
+    required: false
+    default: GitHub Actions
+  git_email:
+    description: "Git User Email"
+    required: false
+    default: actions@github.com
+  repo:
+    description: "Repository URL (only https path supported)"
+    required: true
+  action:
+    description: "Action push (default), add, pull"
+    required: false
+    default: "push"
+  position:
+    description: "branch name, commit sha"
+    required: false
+    default: "main"
+  prefix:
+    description: "Prefix"
+    required: true
+  squash:
+    description: "Squash the merge"
+    required: false
+    default: "true"
+  message:
+    description: "Message"
+    required: false
+    default: "Subtree Action"
+
+runs:
+  using: "composite"
+
+  steps:
+    - name: Setup git for subtree
+      shell: bash
+      env:
+        SPLIT_MODULES_GH_TOKEN: ${{ secrets.SPLIT_MODULES_GH_TOKEN }}
+      run: |
+        # Fix dubious ownership
+        git config --global --add safe.directory /github/workspace
+
+        # Set git email and name
+        git config --global user.email "${{ inputs.git_email }}"
+        git config --global user.name "${{ inputs.git_name }}"
+
+        # Make sure there are no prompts for git commands
+        cp .git/config .git/config-original
+        git config --global url."https://api:${{ env.SPLIT_MODULES_GH_TOKEN }}@github.com/".insteadOf "https://github.com/"
+        git config --unset http."https://github.com/".extraheader
+
+    - name: Setup git for subtree
+      shell: bash
+      run: |
+        SQUASH=""
+        if [ "${{ inputs.squash }}" == "true" ]; then
+          SQUASH="--squash"
+        fi
+
+        # Update subtree
+        git subtree ${{ inputs.action }} -d --prefix=${{ inputs.prefix }} "${{ inputs.repo }}" "${{ inputs.position }}" --message="${{ inputs.message }}" $SQUASH
+
+        # Revert git config change
+        cp -f .git/config-original .git/config
