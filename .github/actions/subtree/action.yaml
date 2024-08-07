@@ -13,10 +13,6 @@ inputs:
   repo:
     description: "Repository URL (only https path supported)"
     required: true
-  action:
-    description: "Action push (default), add, pull"
-    required: false
-    default: "push"
   position:
     description: "branch name, commit sha"
     required: false
@@ -24,14 +20,6 @@ inputs:
   prefix:
     description: "Prefix"
     required: true
-  squash:
-    description: "Squash the merge"
-    required: false
-    default: "true"
-  message:
-    description: "Message"
-    required: false
-    default: "Subtree Action"
   github_pat:
     description: "GitHub Personal Access Token"
     required: true
@@ -58,13 +46,8 @@ runs:
     - name: Setup git for subtree
       shell: bash
       run: |
-        SQUASH=""
-        if [ "${{ inputs.squash }}" == "true" ]; then
-          SQUASH="--squash"
-        fi
-
         # Update subtree
-        git subtree ${{ inputs.action }} -d --prefix=${{ inputs.prefix }} "${{ inputs.repo }}" "${{ inputs.position }}" --message="${{ inputs.message }}" $SQUASH
+        git subtree push --prefix=${{ inputs.prefix }} "${{ inputs.repo }}" "${{ inputs.position }}"
 
         # Revert git config change
         cp -f .git/config-original .git/config
