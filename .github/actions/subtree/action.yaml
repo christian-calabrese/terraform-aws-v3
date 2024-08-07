@@ -35,7 +35,8 @@ inputs:
 
 runs:
   using: "composite"
-
+  secrets: inherit
+  
   steps:
     - name: Setup git for subtree
       shell: bash
