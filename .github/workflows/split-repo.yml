@@ -57,8 +57,6 @@ jobs:
             REPO_URL="https://x-access-token:${SPLIT_MODULES_GH_TOKEN}@github.com/christian-calabrese/terraform-aws-$module.git"
             echo "Using repository URL: $REPO_URL"
             MODULE_PATH="modules/$module"
-            git remote add $module $REPO_URL
-            git fetch $module
-            git subtree push --prefix=$MODULE_PATH $module main
+            git subtree push --prefix=$MODULE_PATH $REPO_URL main
           done
         shell: /usr/bin/bash -e {0}
