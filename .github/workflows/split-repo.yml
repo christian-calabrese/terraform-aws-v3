@@ -31,7 +31,14 @@ jobs:
           echo "unique_list=$unique_list" >> $GITHUB_ENV
           echo "::set-output name=modules::$unique_list"
       
+      - name: Setup git config
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "<>"
+      
       - name: Process each module
+        env:
+          GH_TOKEN: ${{ secrets.SPLIT_MODULES_GH_TOKEN }}
         run: |
           # Load the modified modules from the environment
           modified_modules="${{ steps.get-modules.outputs.modules }}"
