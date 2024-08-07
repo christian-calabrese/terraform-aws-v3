@@ -5,6 +5,10 @@ on:
     branches:
       - main
 
+permissions:
+  contents: write
+  id-token: write
+
 jobs:
   split_and_push:
     runs-on: ubuntu-latest
@@ -38,7 +42,7 @@ jobs:
 
       - name: Process each module
         env:
-          SPLIT_MODULES_GH_TOKEN: ${{ secrets.SPLIT_MODULES_GH_TOKEN }}
+          SPLIT_MODULES_GH_TOKEN: ${{ github.token }}
         run: |
           # Load the modified modules from the environment
           modified_modules="${{ steps.get-modules.outputs.modules }}"
