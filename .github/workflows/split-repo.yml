@@ -38,7 +38,7 @@ jobs:
       
       - name: Process each module
         env:
-          GH_TOKEN: ${{ secrets.SPLIT_MODULES_GH_TOKEN }}
+          SPLIT_MODULES_GH_TOKEN: ${{ secrets.SPLIT_MODULES_GH_TOKEN }}
         run: |
           # Load the modified modules from the environment
           modified_modules="${{ steps.get-modules.outputs.modules }}"
@@ -54,7 +54,7 @@ jobs:
             # Remove quotes around module names
             module=$(echo "$module" | sed 's/^"\(.*\)"$/\1/')
             echo "Processing module: $module"
-            REPO_URL="https://x-access-token:${GH_TOKEN}@github.com/christian-calabrese/terraform-aws-$module.git"
+            REPO_URL="https://x-access-token:${SPLIT_MODULES_GH_TOKEN}@github.com/christian-calabrese/terraform-aws-$module.git"
             MODULE_PATH="modules/$module"
             git subtree push --prefix=$MODULE_PATH $REPO_URL main
           done
