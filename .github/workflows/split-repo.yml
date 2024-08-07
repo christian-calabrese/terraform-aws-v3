@@ -41,7 +41,7 @@ jobs:
     needs: get-modified-modules
     strategy:
       matrix:
-        module: ${{needs.get-modified-modules.outputs.modules}}
+        module: ${{ fromJSON(needs.get-modified-modules.outputs.modules) }}
     steps:
       - name: Run subtree action
         id: subtree-action
