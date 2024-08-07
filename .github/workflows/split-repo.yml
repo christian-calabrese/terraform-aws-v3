@@ -31,13 +31,7 @@ jobs:
             fi
           done
 
-          # Check if folders_list is empty
-          if [ "$folders_list" = "[]" ]; then
-            unique_list="[]"
-          else
-            unique_list=$(echo "$folders_list" | jq -c 'unique')
-          fi
-          
+          unique_list=$(echo "$folders_list" | jq -c 'unique')
           echo "modules=$unique_list" >> $GITHUB_OUTPUT
     outputs:
       modules: ${{ steps.get-modules.outputs.modules }}
