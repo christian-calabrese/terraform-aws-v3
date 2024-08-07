@@ -5,6 +5,10 @@ on:
     branches:
       - main
 
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+      
 jobs:
   get-modified-modules:
     runs-on: ubuntu-latest
@@ -46,6 +50,6 @@ jobs:
         id: subtree-action
         uses: ./.github/actions/subtree
         with:
-          repo: https://github.com/christian-calabrese/terraform-aws-${{ matrix.module }}.git"
+          repo: https://github.com/christian-calabrese/terraform-aws-${{ matrix.module }}.git
           prefix: "modules/${{ matrix.module }}"
           github_pat: ${{ secrets.SPLIT_MODULES_GH_TOKEN }}
