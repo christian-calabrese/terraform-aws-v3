@@ -47,8 +47,7 @@ runs:
       shell: bash
       run: |
         # Update subtree
-        git subtree pull --prefix=${{ inputs.prefix }} "${{ inputs.repo }}" "${{ inputs.position }}" --squash
-        git subtree push --prefix=${{ inputs.prefix }} "${{ inputs.repo }}" "${{ inputs.position }}"
+        git subtree push -f --prefix=${{ inputs.prefix }} "${{ inputs.repo }}" "${{ inputs.position }}"
 
         # Revert git config change
         cp -f .git/config-original .git/config
