@@ -46,7 +46,7 @@ runs:
     - name: Setup git for subtree
       shell: bash
       run: |
-        git subtree pull --prefix=${{ inputs.prefix }} "${{ inputs.repo }}" "${{ inputs.position }}"
+        git subtree pull --prefix=${{ inputs.prefix }} "${{ inputs.repo }}" "${{ inputs.position }}" --squash
 
         # Update subtree
         git subtree push --prefix=${{ inputs.prefix }} "${{ inputs.repo }}" "${{ inputs.position }}"
