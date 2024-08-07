@@ -28,11 +28,6 @@ runs:
   using: "composite"
 
   steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-      with:
-        token: ${{ inputs.github_pat }}
-
     - name: Setup git for subtree
       shell: bash
       run: |
@@ -51,6 +46,8 @@ runs:
     - name: Setup git for subtree
       shell: bash
       run: |
+        git pull
+        
         # Update subtree
         git subtree push --prefix=${{ inputs.prefix }} "${{ inputs.repo }}" "${{ inputs.position }}"
 
