@@ -36,12 +36,10 @@ inputs:
 runs:
   using: "composite"
   secrets: inherit
-  
+
   steps:
     - name: Setup git for subtree
       shell: bash
-      env:
-        SPLIT_MODULES_GH_TOKEN: ${{ secrets.SPLIT_MODULES_GH_TOKEN }}
       run: |
         # Fix dubious ownership
         git config --global --add safe.directory /github/workspace
@@ -52,7 +50,7 @@ runs:
 
         # Make sure there are no prompts for git commands
         cp .git/config .git/config-original
-        git config --global url."https://api:${{ env.SPLIT_MODULES_GH_TOKEN }}@github.com/".insteadOf "https://github.com/"
+        git config --global url."https://api:${{ secrets.SPLIT_MODULES_GH_TOKEN }}@github.com/".insteadOf "https://github.com/"
         git config --unset http."https://github.com/".extraheader
 
     - name: Setup git for subtree
