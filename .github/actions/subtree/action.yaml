@@ -32,6 +32,9 @@ inputs:
     description: "Message"
     required: false
     default: "Subtree Action"
+  github_pat:
+    description: "GitHub Personal Access Token"
+    required: true
 
 runs:
   using: "composite"
@@ -50,7 +53,7 @@ runs:
 
         # Make sure there are no prompts for git commands
         cp .git/config .git/config-original
-        git config --global url."https://api:${{ secrets.SPLIT_MODULES_GH_TOKEN }}@github.com/".insteadOf "https://github.com/"
+        git config --global url."https://api:${{ inputs.github_pat }}@github.com/".insteadOf "https://github.com/"
         git config --unset http."https://github.com/".extraheader
 
     - name: Setup git for subtree

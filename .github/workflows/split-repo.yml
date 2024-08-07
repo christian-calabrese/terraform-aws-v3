@@ -52,3 +52,4 @@ jobs:
         with:
           repo: https://github.com/christian-calabrese/terraform-aws-${{ matrix.module }}.git"
           prefix: "modules/${{ matrix.module }}"
+          github_pat: ${{ secrets.SPLIT_MODULES_GH_TOKEN }}
