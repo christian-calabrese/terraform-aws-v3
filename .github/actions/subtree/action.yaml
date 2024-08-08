@@ -57,37 +57,27 @@ runs:
       shell: bash
       run: |
         set -x
-        # Generate sha256 of the downstream repo name
-        SPLIT_DIR=$(echo -n "${{ inputs.repo }}" | sha256sum)
-        SPLIT_DIR="${SPLIT_DIR::-3}"
-
-        # Get subtree repository into split directory
-        git init --bare "${SPLIT_DIR}"
-
-        # Create the subtree split branch
+        # Split the subtree
         git subtree split --prefix="${{ inputs.prefix }}" -b split
 
-        # Check for force push to remote
-        if [ "${{ inputs.force }}" == "true" ]; then
-          PUSH_ARGS="-f"
-        fi
+        # Clone the target repository
+        git clone "https://github.com/${{ inputs.repo }}.git" target-repo
 
-        # Push to the subtree directory
-        git push ${PUSH_ARGS} "${SPLIT_DIR}" split:"${{ inputs.ref }}"
+        # Change to the cloned directory
+        cd target-repo
 
-        cd "${SPLIT_DIR}"
-        # git remote add origin subtree:"${{ inputs.repo }}"
-        git remote add origin "https://github.com/${{ inputs.repo }}.git"
-        git fetch origin ${{ inputs.ref }}
-        git merge origin/${{ inputs.ref }} -X ours --no-edit
-        git push -u ${PUSH_ARGS} origin "${{ inputs.ref }}"
+        # Checkout to the target branch (or create it if it doesn't exist)
+        git checkout -B "${{ inputs.ref }}"
 
-        # # Tag the subtree repository
-        # if [ "$INPUT_TAG" != "false" ]; then
-        #   if [ "$INPUT_TAG" == "true" ]; then
-        #     INPUT_TAG="${GITHUB_REF}"
-        #   fi
+        # Pull the latest changes (if any)
+        git pull origin "${{ inputs.ref }}" --rebase
 
-        #   git tag $(basename "${INPUT_TAG}")
-        #   git push --tags
-        # fi
+        # Merge the split branch from the original repo
+        git pull ../. split --allow-unrelated-histories
+
+        # Push the merged changes to the target repository
+        git push origin "${{ inputs.ref }}"
+
+        # Cleanup
+        cd ..
+        rm -rf target-repo
