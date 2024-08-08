@@ -13,7 +13,7 @@ inputs:
   repo:
     description: "Repository URL (only https path supported)"
     required: true
-  position:
+  ref:
     description: "branch name, commit sha"
     required: false
     default: "main"
@@ -73,11 +73,11 @@ runs:
         fi
 
         # Push to the subtree directory
-        git push ${PUSH_ARGS} "${SPLIT_DIR}" split:"${{ inputs.branch }}"
+        git push ${PUSH_ARGS} "${SPLIT_DIR}" split:"${{ inputs.ref }}"
 
         cd "${SPLIT_DIR}"
         git remote add origin subtree:"${{ inputs.repo }}"
-        git push -u "${PUSH_ARGS}" origin "${{ inputs.branch }}"
+        git push -u "${PUSH_ARGS}" origin "${{ inputs.ref }}"
 
         # # Tag the subtree repository
         # if [ "$INPUT_TAG" != "false" ]; then
