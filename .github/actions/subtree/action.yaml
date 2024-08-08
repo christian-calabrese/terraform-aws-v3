@@ -23,6 +23,10 @@ inputs:
   github_pat:
     description: "GitHub Personal Access Token"
     required: true
+  force:
+    description: "Force push"
+    required: false
+    default: "false"
 
 runs:
   using: "composite"
@@ -52,9 +56,34 @@ runs:
     - name: Push subtree with force
       shell: bash
       run: |
-        git subtree pull --prefix=${{ inputs.prefix }} ${{ inputs.repo }} ${{ inputs.position}} --squash -m "squash"
-        git subtree push --prefix=${{ inputs.prefix }} ${{ inputs.repo }} ${{ inputs.position}}
+        # Generate sha256 of the downstream repo name
+        SPLIT_DIR=$(echo -n "${{ inputs.repo }}" | sha256sum)
+        SPLIT_DIR="${SPLIT_DIR::-3}"
 
-        # git push ${{ inputs.repo }} `git subtree split --prefix=${{ inputs.prefix }} ${{ inputs.position }}`:${{ inputs.position }} --force
-        # Revert git config change
-        cp -f .git/config-original .git/config
+        # Get subtree repository into split directory
+        git init --bare "${SPLIT_DIR}"
+
+        # Create the subtree split branch
+        git subtree split --prefix="${{ inputs.prefix }}" -b split
+
+        # Check for force push to remote
+        if [ "${{ inputs.force }}" == "true" ]; then
+          PUSH_ARGS="-f"
+        fi
+
+        # Push to the subtree directory
+        git push "${PUSH_ARGS}" "${SPLIT_DIR}" split:"${{ inputs.position }}"
+
+        cd "${SPLIT_DIR}"
+        git remote add origin subtree:"${{ inputs.repo }}"
+        git push -u "${PUSH_ARGS}" origin "${{ inputs.position }}"
+
+        # # Tag the subtree repository
+        # if [ "${{ inputs.tag_enabled }}" != "false" ]; then
+        #   if [ "$INPUT_TAG" == "true" ]; then
+        #     INPUT_TAG="${GITHUB_REF}"
+        #   fi
+
+        #   git tag $(basename "${INPUT_TAG}")
+        #   git push --tags
+        # fi
