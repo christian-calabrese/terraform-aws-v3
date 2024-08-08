@@ -77,7 +77,7 @@ runs:
 
         cd "${SPLIT_DIR}"
         git remote add origin subtree:"${{ inputs.repo }}"
-        git push -u "${PUSH_ARGS}" origin "${{ inputs.ref }}"
+        git push -u ${PUSH_ARGS} origin "${{ inputs.ref }}"
 
         # # Tag the subtree repository
         # if [ "$INPUT_TAG" != "false" ]; then
