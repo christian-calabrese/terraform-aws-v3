@@ -43,17 +43,15 @@ runs:
         git config --global url."https://api:${{ inputs.github_pat }}@github.com/".insteadOf "https://github.com/"
         git config --unset http."https://github.com/".extraheader
 
-    - name: Fetch latest changes and reset local branch
-      shell: bash
-      run: |
-        git fetch origin
-        git reset --hard origin/main
+    # - name: Fetch latest changes and reset local branch
+    #   shell: bash
+    #   run: |
+    #     git fetch origin
+    #     git reset --hard origin/main
 
     - name: Push subtree with force
       shell: bash
       run: |
-        git subtree add --prefix=${{ inputs.prefix }}/ module ${{ inputs.position }}
-        git commit -am "add your changes back in"
         git subtree push --prefix=${{ inputs.prefix }} module ${{ inputs.position}}
 
         # git push ${{ inputs.repo }} `git subtree split --prefix=${{ inputs.prefix }} ${{ inputs.position }}`:${{ inputs.position }} --force
