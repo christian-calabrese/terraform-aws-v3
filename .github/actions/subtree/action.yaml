@@ -57,6 +57,7 @@ runs:
       shell: bash
       run: |
         set -x
+
         # Split the subtree
         git subtree split --prefix="${{ inputs.prefix }}" -b split
 
@@ -69,11 +70,11 @@ runs:
         # Checkout to the target branch (or create it if it doesn't exist)
         git checkout -B "${{ inputs.ref }}"
 
-        # Pull the latest changes (if any)
+        # Pull the latest changes from the remote target branch
         git pull origin "${{ inputs.ref }}" --rebase
 
-        # Merge the split branch from the original repo
-        git pull ../. split --allow-unrelated-histories
+        # Merge the split branch from the original repo with explicit strategy
+        git pull ../. split --allow-unrelated-histories --no-rebase
 
         # Push the merged changes to the target repository
         git push origin "${{ inputs.ref }}"
