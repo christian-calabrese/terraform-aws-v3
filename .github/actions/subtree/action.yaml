@@ -52,7 +52,7 @@ runs:
     - name: Push subtree with force
       shell: bash
       run: |
-        git subtree push --prefix=${{ inputs.prefix }} module ${{ inputs.position}}
+        git subtree push --prefix=${{ inputs.prefix }} ${{ inputs.repo }} ${{ inputs.position}}
 
         # git push ${{ inputs.repo }} `git subtree split --prefix=${{ inputs.prefix }} ${{ inputs.position }}`:${{ inputs.position }} --force
         # Revert git config change
