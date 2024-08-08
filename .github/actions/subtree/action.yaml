@@ -14,11 +14,14 @@ inputs:
     description: "Repository URL (only https path supported)"
     required: true
   ref:
-    description: "branch name, commit sha"
+    description: "Branch name, commit SHA"
     required: false
     default: "main"
   prefix:
     description: "Prefix"
+    required: true
+  module:
+    description: "Module name"
     required: true
   github_pat:
     description: "GitHub Personal Access Token"
@@ -51,42 +54,6 @@ runs:
       run: |
         set -x
 
-        # Split the subtree
-        git subtree split --prefix="${{ inputs.prefix }}" -b split
-
-        # Clone the target repository
-        git clone "https://github.com/${{ inputs.repo }}.git" target-repo
-
-        # Change to the cloned directory
-        cd target-repo
-
-        # Checkout to the target branch (or create it if it doesn't exist)
-        git checkout -B "${{ inputs.ref }}"
-
-        # Pull the latest changes from the remote target branch
-        git pull origin "${{ inputs.ref }}" --rebase
-
-        # Merge the split branch from the original repo with explicit strategy
-        git pull ../. split --allow-unrelated-histories --no-rebase
-
-        # Resolve conflicts and commit the result
-        if [ -n "$(git ls-files -u)" ]; then
-          echo "Conflicts detected. Resolving..."
-          # Resolve conflicts by keeping changes from the current branch
-          git checkout --ours .
-          git add .
-          git commit -m "Resolved merge conflicts from split branch"
-        else
-          echo "No conflicts detected."
-        fi
-
-        # Push the merged changes to the target repository
-        if [ "${{ inputs.force }}" == "true" ]; then
-          git push -f origin "${{ inputs.ref }}"
-        else
-          git push origin "${{ inputs.ref }}"
-        fi
-
-        # Cleanup
-        cd ..
-        rm -rf target-repo
+        git remote add "${{ inputs.module }}" "https://github.com/${{ inputs.repo }}.git"
+        git subtree add --prefix=${{ inputs.prefix }} "${{ inputs.module }}" "https://github.com/${{ inputs.repo }}.git" subtree-${{ inputs.module }}
+        git subtree push-all
