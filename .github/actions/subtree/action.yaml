@@ -26,7 +26,7 @@ inputs:
   force:
     description: "Force push"
     required: false
-    default: "false"
+    default: "true"
 
 runs:
   using: "composite"
