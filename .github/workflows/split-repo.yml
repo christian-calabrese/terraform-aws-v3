@@ -52,6 +52,6 @@ jobs:
         id: subtree-action
         uses: ./.github/actions/subtree
         with:
-          repo: christian-calabrese/terraform-aws-${{ matrix.module }}.git
+          repo: christian-calabrese/terraform-aws-${{ matrix.module }}
           prefix: "modules/${{ matrix.module }}"
           github_pat: ${{ secrets.SPLIT_MODULES_GH_TOKEN }}
