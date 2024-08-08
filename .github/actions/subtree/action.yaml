@@ -56,6 +56,7 @@ runs:
     - name: Push subtree with force
       shell: bash
       run: |
+        set -x
         # Generate sha256 of the downstream repo name
         SPLIT_DIR=$(echo -n "${{ inputs.repo }}" | sha256sum)
         SPLIT_DIR="${SPLIT_DIR::-3}"
