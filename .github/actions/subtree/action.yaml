@@ -52,7 +52,6 @@ runs:
     - name: Push subtree with force
       shell: bash
       run: |
-        git remote add --fetch module ${{ inputs.repo }}
         git subtree add --prefix=${{ inputs.prefix }}/ module ${{ inputs.position }}
         git commit -am "add your changes back in"
         git subtree push --prefix=${{ inputs.prefix }} module ${{ inputs.position}}
