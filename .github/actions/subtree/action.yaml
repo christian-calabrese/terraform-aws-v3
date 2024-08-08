@@ -26,7 +26,7 @@ inputs:
   force:
     description: "Force push"
     required: false
-    default: "true"
+    default: "false"
 
 runs:
   using: "composite"
@@ -78,6 +78,8 @@ runs:
         cd "${SPLIT_DIR}"
         # git remote add origin subtree:"${{ inputs.repo }}"
         git remote add origin "https://github.com/${{ inputs.repo }}.git"
+        git fetch origin ${{ inputs.ref }}
+        git merge origin/${{ inputs.ref }} -X ours --no-edit
         git push -u ${PUSH_ARGS} origin "${{ inputs.ref }}"
 
         # # Tag the subtree repository
