@@ -43,17 +43,10 @@ runs:
         git config --global user.name "${{ inputs.git_name }}"
 
         # Make sure there are no prompts for git commands
-        cp .git/config .git/config-original
         git config --global url."https://api:${{ inputs.github_pat }}@github.com/".insteadOf "https://github.com/"
         git config --unset http."https://github.com/".extraheader
 
-    # - name: Fetch latest changes and reset local branch
-    #   shell: bash
-    #   run: |
-    #     git fetch origin
-    #     git reset --hard origin/main
-
-    - name: Push subtree with force
+    - name: Push subtree
       shell: bash
       run: |
         set -x
@@ -76,8 +69,17 @@ runs:
         # Merge the split branch from the original repo with explicit strategy
         git pull ../. split --allow-unrelated-histories --no-rebase
 
+        # Resolve conflicts and commit the result
+        git checkout --ours .
+        git add .
+        git commit -m "Resolve merge conflicts from split branch"
+
         # Push the merged changes to the target repository
-        git push origin "${{ inputs.ref }}"
+        if [ "${{ inputs.force }}" == "true" ]; then
+          git push -f origin "${{ inputs.ref }}"
+        else
+          git push origin "${{ inputs.ref }}"
+        fi
 
         # Cleanup
         cd ..
