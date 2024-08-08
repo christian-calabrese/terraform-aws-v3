@@ -72,7 +72,7 @@ runs:
         fi
 
         # Push to the subtree directory
-        git push "${PUSH_ARGS}" "${{ inputs.prefix }}" split:"${{ inputs.branch }}"
+        git push "${PUSH_ARGS}" "${SPLIT_DIR}" split:"${{ inputs.branch }}"
 
         cd "${SPLIT_DIR}"
         git remote add origin subtree:"${{ inputs.repo }}"
