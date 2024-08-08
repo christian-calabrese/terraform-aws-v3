@@ -76,7 +76,8 @@ runs:
         git push ${PUSH_ARGS} "${SPLIT_DIR}" split:"${{ inputs.ref }}"
 
         cd "${SPLIT_DIR}"
-        git remote add origin subtree:"${{ inputs.repo }}"
+        # git remote add origin subtree:"${{ inputs.repo }}"
+        git remote add origin "https://github.com/${{ inputs.repo }}.git"
         git push -u ${PUSH_ARGS} origin "${{ inputs.ref }}"
 
         # # Tag the subtree repository
