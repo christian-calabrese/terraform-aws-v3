@@ -52,6 +52,12 @@ runs:
     - name: Push subtree with force
       shell: bash
       run: |
-        git push ${{ inputs.repo }} `git subtree split --prefix=${{ inputs.prefix }} ${{ inputs.position }}`:${{ inputs.position }} --force
+        git commit -am "remove components to move to separate repo"
+        git remote add --fetch module ${{ inputs.repo }}
+        git subtree add --prefix=${{ inputs.prefix }}/ module ${{ inputs.position }}
+        git commit -am "add your changes back in"
+        git subtree push --prefix=${{ inputs.prefix }} module ${{ inputs.position}}
+
+        # git push ${{ inputs.repo }} `git subtree split --prefix=${{ inputs.prefix }} ${{ inputs.position }}`:${{ inputs.position }} --force
         # Revert git config change
         cp -f .git/config-original .git/config
