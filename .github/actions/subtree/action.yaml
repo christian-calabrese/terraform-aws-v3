@@ -52,6 +52,7 @@ runs:
     - name: Push subtree with force
       shell: bash
       run: |
+        git subtree pull --prefix=${{ inputs.prefix }} ${{ inputs.repo }} ${{ inputs.position}} --squash -m "squash"
         git subtree push --prefix=${{ inputs.prefix }} ${{ inputs.repo }} ${{ inputs.position}}
 
         # git push ${{ inputs.repo }} `git subtree split --prefix=${{ inputs.prefix }} ${{ inputs.position }}`:${{ inputs.position }} --force
